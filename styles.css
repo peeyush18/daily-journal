@@ -1,0 +1,41 @@
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    .section-setting {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        background-color: var(--background-secondary);
+    }
+    
+    .section-setting .setting-item {
+        padding: 8px 0;
+    }
+    
+    .section-setting .setting-item-info {
+        font-size: 16px;
+    }
+    
+    .section-setting .setting-item-control input,
+    .section-setting .setting-item-control textarea {
+        font-size: 16px;
+        padding: 8px;
+    }
+}
+
+/* Touch-friendly elements */
+.mobile-button {
+    padding: 12px 16px;
+    font-size: 16px;
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+/* Section styling for better mobile readability */
+.cdn-section {
+    margin-bottom: 20px;
+}
+
+.cdn-section h2 {
+    font-size: 1.4em;
+    margin-bottom: 10px;
+}

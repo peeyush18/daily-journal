@@ -1,0 +1,11 @@
+{
+    "id": "custom-daily-notes",
+    "name": "Custom Daily Notes",
+    "version": "1.0.0",
+    "minAppVersion": "1.1.0",
+    "description": "Enhanced daily notes with customizable sections and task inheritance",
+    "author": "istio",
+    "authorUrl": "https://yourwebsite.com",
+    "isDesktopOnly": false,
+    "mobileOptimized": true
+  }
