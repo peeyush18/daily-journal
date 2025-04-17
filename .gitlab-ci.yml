@@ -38,6 +38,7 @@ create_release:
   needs: ["build_project"]
   script:
     - echo "Creating release for $CI_COMMIT_TAG"
+    - cp build/main.js build/manifest.json build/styles.css .  # Copy files to root for release
   rules:
     - if: $CI_COMMIT_TAG  # Only run on tagged commits
   release:
@@ -46,14 +47,13 @@ create_release:
     tag_name: $CI_COMMIT_TAG
     assets:
       links:
-        - name: 'main.js'
-          url: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/jobs/${CI_JOB_ID}/artifacts/build/main.js'
-        - name: 'manifest.json'
-          url: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/jobs/${CI_JOB_ID}/artifacts/build/manifest.json'
-        - name: 'styles.css'
-          url: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/jobs/${CI_JOB_ID}/artifacts/build/styles.css'
-
-
+      links:
+        - name: "main.js"
+          url: "${CI_JOB_URL}/artifacts/file/main.js"
+        - name: "manifest.json"
+          url: "${CI_JOB_URL}/artifacts/file/manifest.json"
+        - name: "styles.css"
+          url: "${CI_JOB_URL}/artifacts/file/styles.css"
 
 # 3. Deploy to GitLab Pages (MANUAL TRIGGER)
 deploy_to_pages:
