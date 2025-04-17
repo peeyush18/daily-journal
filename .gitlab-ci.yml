@@ -11,7 +11,7 @@ cache:
 # Install dependencies
 install_dependencies:
   stage: install
-  image: node:18
+  image: node:22
   script:
     - npm ci --prefer-offline
   artifacts:
@@ -22,12 +22,12 @@ install_dependencies:
 # Build the project
 build_project:
   stage: build
-  image: node:18
+  image: node:22
   script:
     - npm run build
   artifacts:
     paths:
-      - dist/  # Your built output (adjust if different)
+      - build/  # Your built output (adjust if different)
     expire_in: 1 week  # Keep artifact for releases
 
 # Create a release (GitLab Releases)
@@ -47,3 +47,34 @@ create_release:
       links:
         - name: "Production Build"
           url: "$CI_API_V4_URL/projects/$CI_PROJECT_ID/jobs/$CI_JOB_ID/artifacts/dist"
+
+# Add this job to your pipeline
+pages:
+  stage: release
+  image: alpine:latest
+  needs: ["build_project"]
+  script:
+    - cp -r build/ public/  # GitLab Pages expects files in `public/`
+  artifacts:
+    paths:
+      - public/
+    expire_in: 30 days
+
+
+# 3. Deploy to GitLab Pages (MANUAL TRIGGER)
+deploy_to_pages:
+  stage: deploy
+  image: alpine:latest
+  needs: ["build_project"]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH  # Only allow on main branch
+      when: manual  # Requires manual click in GitLab UI
+  script:
+    - echo "Deploying to GitLab Pages..."
+    - cp -r build/ public/  # GitLab Pages requires files in `public/`
+  artifacts:
+    paths:
+      - public/
+  environment:
+    name: pages
+    url: https://$CI_PROJECT_NAMESPACE.gitlab.io/$CI_PROJECT_NAME
