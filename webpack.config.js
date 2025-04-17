@@ -1,12 +1,14 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 
 module.exports = {
   entry: './main.ts',
-  mode: 'production',
+  mode: 'development',
   target: 'node',
   output: {
     path: path.resolve(__dirname),
-    filename: 'main.js',
+    filename: 'build/main.js',
     libraryTarget: 'commonjs2'
   },
   resolve: {
@@ -26,4 +28,12 @@ module.exports = {
     fs: 'commonjs2 fs',
     path: 'commonjs2 path'
   },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'manifest.json', to: 'build/manifest.json' },
+        { from: 'styles.css', to: 'build/styles.css' },
+      ],
+    }),
+  ],
 };

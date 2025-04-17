@@ -13,10 +13,10 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     //  TODO - Uncomment the following line to enable declaration files generation
-    // "declaration": false,
+    "declaration": true,
     "composite": true,
     "noEmitOnError": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 }
