@@ -30,9 +30,10 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin({
+      // Copy the manifest.json and styles.css files to the build directory
       patterns: [
-        { from: 'manifest.json', to: 'build/manifest.json' },
-        { from: 'styles.css', to: 'build/styles.css' },
+        { from: 'manifest.json', to: 'build/manifest.json', force: true },
+        { from: 'styles.css', to: 'build/styles.css', force: true },
       ],
     }),
   ],
