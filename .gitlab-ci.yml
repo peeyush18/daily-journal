@@ -2,6 +2,7 @@ stages:
   - install
   - build
   - release
+  - deploy
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
