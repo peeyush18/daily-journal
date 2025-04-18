@@ -5,6 +5,10 @@ on:
     tags:
       - '*.*.*'  # Trigger on version tags (e.g., 1.0.0)
 
+permissions:
+  contents: write  # Required to create releases
+
+
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
