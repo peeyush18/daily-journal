@@ -40,5 +40,29 @@ jobs:
 
       - name: Create Tag
         run: |
-          git tag v${{ steps.bump-version.outputs.new_version }}
-          git push origin v${{ steps.bump-version.outputs.new_version }}
+          git tag ${{ steps.bump-version.outputs.new_version }}
+          git push origin ${{ steps.bump-version.outputs.new_version }}
+    
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+    
+      - name: Run build
+        run: npm run build
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.bump-version.outputs.new_version }}
+          name: Release ${{ steps.bump-version.outputs.new_version }}
+          body: "Built files from /build directory"
+          files: |
+            build/main.js
+            build/manifest.json
+            build/styles.css
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
