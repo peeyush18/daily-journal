@@ -1,0 +1,52 @@
+name: Version Update & Release
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write  # Needed to push changes and create tags
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required for git history
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Extract Current Version
+        id: version
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' manifest.json)
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Bump Version (Patch)
+        id: bump-version
+        run: |
+          NEW_VERSION=$(echo ${{ steps.version.outputs.current_version }} | awk -F. '{$NF++; print}' OFS=.)
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          jq --arg newVersion "$NEW_VERSION" '.version = $newVersion' manifest.json > tmp.json && mv tmp.json manifest.json
+
+      - name: Commit Version Update
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add manifest.json
+          git commit -m "Bump version to ${{ steps.bump-version.outputs.new_version }}"
+          git push origin main
+
+      - name: Create Tag
+        run: |
+          git tag v${{ steps.bump-version.outputs.new_version }}
+          git push origin v${{ steps.bump-version.outputs.new_version }}
+
+      - name: Build Project
+        run: npm run build
