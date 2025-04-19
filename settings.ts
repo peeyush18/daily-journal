@@ -88,6 +88,18 @@ export class CustomDailyNotesSettingTab extends PluginSettingTab {
                         section.content = value;
                         await this.plugin.saveSettings();
                     }));
+        
+            new Setting(sectionDiv)
+                .setName('Template Path')
+                .setDesc('Optional path to template file (e.g., "Templates/Daily Journal.md")')
+                .addText(text => text
+                    .setValue(section.templatePath || '')
+                    .onChange(async (value) => {
+                        section.templatePath = value.trim() || undefined;
+                        await this.plugin.saveSettings();
+                    }));                    
+                    
+            
         });
     }
 }
