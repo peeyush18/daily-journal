@@ -63,7 +63,6 @@ export default class CustomDailyNotesPlugin extends Plugin {
             // Check if file exists
             const filePath = `${folderPath}/${fileName}`;
             let file = vault.getAbstractFileByPath(filePath) as TFile;
-            
             if (!file) {
                 // Create new file with template
                 const content = await this.generateDailyNoteContent();
@@ -136,7 +135,13 @@ export default class CustomDailyNotesPlugin extends Plugin {
                 }
             }
             
-            content += `${section.content}\n\n`;
+            let sectionContent = `${section.content}\n\n`;
+            // Use template if specified, otherwise use default content
+            if (section.templatePath) { 
+                const templateContent = await this.getTemplateContent(section.templatePath);
+                sectionContent = await this.parseTemplate(templateContent, date);
+            }        
+            content += sectionContent;
         }
         
         return content;
@@ -280,7 +285,13 @@ export default class CustomDailyNotesPlugin extends Plugin {
                 }
             }
             
-            content += `## ${section.heading}\n${section.content}\n\n`;
+            let sectionContent = `## ${section.heading}\n${section.content}\n\n`;
+            // Use template if specified, otherwise use default content
+            if (section.templatePath) {
+                const templateContent = await this.getTemplateContent(section.templatePath);
+                sectionContent = await this.parseTemplate(templateContent, date);
+            }        
+            content += sectionContent;
         }
         
         return content;
@@ -314,5 +325,27 @@ export default class CustomDailyNotesPlugin extends Plugin {
 
     async saveSettings() {
         await this.saveData(this.settings);
+    }
+
+
+    async getTemplateContent(templatePath: string): Promise<string> {
+        try {
+            const templateFile = this.app.vault.getAbstractFileByPath(templatePath);
+            if (templateFile && templateFile instanceof TFile) {
+                return await this.app.vault.read(templateFile);
+            }
+        } catch (error) {
+            console.error("Error reading template:", error);
+        }
+        return ""; // Return empty string if template not found
+    }
+
+    async parseTemplate(templateContent: string, date: moment.Moment): Promise<string> {
+        // Simple template variables replacement
+        return templateContent
+            .replace(/{{date}}/g, date.format("YYYY-MM-DD"))
+            .replace(/{{time}}/g, date.format("HH:mm"))
+            .replace(/{{day}}/g, date.format("dddd"))
+            .replace(/{{title}}/g, date.format(this.settings.titleFormat));
     }
 }

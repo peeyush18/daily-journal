@@ -2,6 +2,7 @@ export interface DailyNoteSection {
     id: string;
     heading: string;
     content: string;
+    templatePath?: string;
     weekdays: string[];
     enabled: boolean;
 }
