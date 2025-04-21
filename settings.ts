@@ -25,6 +25,17 @@ export class CustomDailyNotesSettingTab extends PluginSettingTab {
                     this.plugin.settings.dailyNotesFolder = value;
                     await this.plugin.saveSettings();
                 }));
+        // In settings.ts, add to display():
+        new Setting(containerEl)
+            .setName('Disable core Daily Notes plugin')
+            .setDesc('Automatically disable Obsidian\'s built-in Daily Notes when this plugin is active')
+            .addToggle(toggle => toggle
+            .setValue(this.plugin.settings.disableCoreDailyNotes)
+            .onChange(async (value) => {
+                this.plugin.settings.disableCoreDailyNotes = value;
+                await this.plugin.saveSettings();
+                await this.plugin.handleCorePluginState(); // Immediate effect
+        }));
 
         // Task Inheritance Settings
         containerEl.createEl('h2', { text: 'Task Inheritance' });

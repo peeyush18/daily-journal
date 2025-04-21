@@ -25,6 +25,7 @@ export interface CustomDailyNotesSettings {
     mobileOptions: MobileOptions;
     inheritTasks: boolean;
     taskInheritanceTag: string;
+    disableCoreDailyNotes: boolean; // Add this new setting
 }
 
 export const DEFAULT_SETTINGS: CustomDailyNotesSettings = {
@@ -36,6 +37,7 @@ export const DEFAULT_SETTINGS: CustomDailyNotesSettings = {
     titleFormat: 'YYYY-MM-DD dddd',
     inheritTasks: true,
     taskInheritanceTag: '@incomplete',
+    disableCoreDailyNotes: true, // Default value for the new setting
     sections: [
         {
             id: 'tasks',
