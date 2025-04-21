@@ -1,5 +1,4 @@
-debugger
-import { Plugin, App, Notice, TFile, TFolder, MarkdownView, PluginManifest } from 'obsidian';
+import { Plugin, App, Notice, TFile, TFolder, MarkdownView, PluginManifest, TAbstractFile } from 'obsidian';
 import { CustomDailyNotesSettings, DEFAULT_SETTINGS } from './interfaces';
 import { CustomDailyNotesSettingTab } from './settings';
 
@@ -96,11 +95,18 @@ export default class CustomDailyNotesPlugin extends Plugin {
         // Add YAML frontmatter if enabled
         if (this.settings.useYamlFrontmatter) {
             content += '---\n';
-            content += `date: ${date.format('YYYY-MM-DD')}\n`;
-            content += `day: ${date.format('dddd')}\n`;
+            // date and day are added as tags
+            // content += `date: ${date.format('YYYY-MM-DD')}\n`;
+            // content += `day: ${date.format('dddd')}\n`;
+            // code for tags start
+            // add date and day as tags alongwith defauult tags
+            content += `tags: [${date.format('YYYY-MM-DD')}, ${date.format('dddd')}`;
             if (this.settings.defaultTags.length > 0) {
-                content += `tags: [${this.settings.defaultTags.join(', ')}]\n`;
+                content += `, ${this.settings.defaultTags.join(', ')}`;
             }
+            content += ']\n';
+            // code for tags end
+
             content += '---\n\n';
         }
         
@@ -149,17 +155,28 @@ export default class CustomDailyNotesPlugin extends Plugin {
 
     async getIncompleteTasksFromPreviousDay(): Promise<string[]> {
         if (!this.settings.inheritTasks) return [];
-        
-        const previousDate = window.moment().subtract(1, 'day');
-        const prevDateStr = previousDate.format('YYYY-MM-DD');
-        const prevFileName = `${this.settings.dailyNotesPrefix}${prevDateStr}.md`;
-        const prevFilePath = `${this.settings.dailyNotesFolder}/${prevFileName}`;
+        // search for last 120 days return empty if no found
+        let previousDate = window.moment().subtract(1, 'day');
+        const maxDaysToSearch = 120;
+        let prevFile: TAbstractFile|null = null;
+        debugger;
+        for (let i = 0; i < maxDaysToSearch; i++) {
+            const dateStr = previousDate.format('YYYY-MM-DD');
+            const fileName = `${this.settings.dailyNotesPrefix}${dateStr}.md`;
+            const filePath = `${this.settings.dailyNotesFolder}/${fileName}`;
+            prevFile = this.app.vault.getAbstractFileByPath(filePath);
+            if (prevFile && prevFile instanceof TFile) {
+                // File exists, break the loop
+                break;
+            }
+            // If file not found, go back one more day
+            previousDate = previousDate.subtract(1, 'day');
+        }
         
         try {
-            const prevFile = this.app.vault.getAbstractFileByPath(prevFilePath);
-            if (!prevFile || !(prevFile instanceof TFile)) return [];
+            if (!prevFile) return [];
             
-            const content = await this.app.vault.read(prevFile);
+            const content = await this.app.vault.read(prevFile as TFile);
             const tasks: string[] = [];
             
             // Parse tasks section
@@ -235,6 +252,12 @@ export default class CustomDailyNotesPlugin extends Plugin {
         
         const currentDate = window.moment(dateMatch[1]);
         const targetDate = currentDate.add(offset, 'days');
+        // if target date is in future return
+        if (targetDate.isAfter(window.moment())) {
+            new Notice("Cannot navigate to future dates");
+            return;
+        }
+
         const targetDateStr = targetDate.format('YYYY-MM-DD');
         const targetFileName = `${this.settings.dailyNotesPrefix}${targetDateStr}.md`;
         const targetFilePath = `${this.settings.dailyNotesFolder}/${targetFileName}`;
@@ -263,11 +286,17 @@ export default class CustomDailyNotesPlugin extends Plugin {
         
         if (this.settings.useYamlFrontmatter) {
             content += '---\n';
-            content += `date: ${date.format('YYYY-MM-DD')}\n`;
-            content += `day: ${date.format('dddd')}\n`;
+            // content += `date: ${date.format('YYYY-MM-DD')}\n`;
+            // content += `day: ${date.format('dddd')}\n`;
+            // code for tags start
+            // add date and day as tags alongwith defauult tags
+            content += `tags: [${date.format('YYYY-MM-DD')}, ${date.format('dddd')}`;
             if (this.settings.defaultTags.length > 0) {
-                content += `tags: [${this.settings.defaultTags.join(', ')}]\n`;
+                content += `, ${this.settings.defaultTags.join(', ')}`;
             }
+            content += ']\n';
+            // code for tags end
+
             content += '---\n\n';
         }
         
