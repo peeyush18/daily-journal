@@ -18,6 +18,7 @@ export default class CustomDailyNotesPlugin extends Plugin {
 
     async onload() {
         await this.loadSettings();
+        await this.handleCorePluginState()
         
         // Register commands
         this.addCommand({
@@ -266,9 +267,9 @@ export default class CustomDailyNotesPlugin extends Plugin {
             let targetFile = this.app.vault.getAbstractFileByPath(targetFilePath) as TFile;
             
             if (!targetFile) {
-                // Create the file if it doesn't exist
-                const content = await this.generateDailyNoteContentForDate(targetDate);
-                targetFile = await this.app.vault.create(targetFilePath, content);
+                // lets returm from here with a notice of file not found
+                new Notice(`File not found: ${targetFileName}`);
+                return;
             }
             
             // Open the file
@@ -279,51 +280,6 @@ export default class CustomDailyNotesPlugin extends Plugin {
             new Notice(`Error navigating to day: ${error}`);
             console.error(error);
         }
-    }
-
-    async generateDailyNoteContentForDate(date: moment.Moment): Promise<string> {
-        let content = '';
-        
-        if (this.settings.useYamlFrontmatter) {
-            content += '---\n';
-            // content += `date: ${date.format('YYYY-MM-DD')}\n`;
-            // content += `day: ${date.format('dddd')}\n`;
-            // code for tags start
-            // add date and day as tags alongwith defauult tags
-            content += `tags: [${date.format('YYYY-MM-DD')}, ${date.format('dddd')}`;
-            if (this.settings.defaultTags.length > 0) {
-                content += `, ${this.settings.defaultTags.join(', ')}`;
-            }
-            content += ']\n';
-            // code for tags end
-
-            content += '---\n\n';
-        }
-        
-        if (this.settings.showTitle) {
-            content += `# ${date.format(this.settings.titleFormat)}\n\n`;
-        }
-        
-        for (const section of this.settings.sections) {
-            if (!section.enabled) continue;
-            
-            if (section.weekdays && section.weekdays.length > 0) {
-                const currentWeekday = date.format('dddd').toLowerCase();
-                if (!section.weekdays.includes(currentWeekday)) {
-                    continue;
-                }
-            }
-            
-            let sectionContent = `## ${section.heading}\n${section.content}\n\n`;
-            // Use template if specified, otherwise use default content
-            if (section.templatePath) {
-                const templateContent = await this.getTemplateContent(section.templatePath);
-                sectionContent = await this.parseTemplate(templateContent, date);
-            }        
-            content += sectionContent;
-        }
-        
-        return content;
     }
 
     async mobileCreateDailyNote() {
@@ -376,5 +332,33 @@ export default class CustomDailyNotesPlugin extends Plugin {
             .replace(/{{time}}/g, date.format("HH:mm"))
             .replace(/{{day}}/g, date.format("dddd"))
             .replace(/{{title}}/g, date.format(this.settings.titleFormat));
+    }
+
+    private async handleCorePluginState(): Promise<void> {
+        if (this.settings.disableCoreDailyNotes) {
+            await this.toggleCorePlugin(false);
+        }
+    }
+
+    private async toggleCorePlugin(enable: boolean): Promise<void> {
+        try {
+            const corePlugins = (this.app as any).internalPlugins?.plugins;
+            if (!corePlugins) return;
+    
+            const dailyNotesPlugin = corePlugins['daily-notes'];
+            if (!dailyNotesPlugin) return;
+    
+            if (enable) {
+                if (!dailyNotesPlugin.enabled) {
+                    await dailyNotesPlugin.enable();
+                }
+            } else {
+                if (dailyNotesPlugin.enabled) {
+                    await dailyNotesPlugin.disable();
+                }
+            }
+        } catch (error) {
+            console.error('Error toggling core Daily Notes plugin:', error);
+        }
     }
 }
