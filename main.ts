@@ -187,7 +187,8 @@ export default class CustomDailyNotesPlugin extends Plugin {
                 const taskLines = tasksContent.split('\n');
                 
                 for (const line of taskLines) {
-                    if (line.includes('- [ ] ') && 
+                    if (line.includes('- [ ] ') &&
+                        line.trim().length > 3 && 
                         !line.includes(this.settings.taskInheritanceTag)) {
                         tasks.push(line.trim());
                     }
