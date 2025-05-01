@@ -11,6 +11,18 @@ export class CustomDailyNotesSettingTab extends PluginSettingTab {
 
     display(): void {
         const { containerEl } = this;
+        const days = [
+            { value: "monday", label: "Monday" },
+            { value: "tuesday", label: "Tuesday" },
+            { value: "wednesday", label: "Wednesday" },
+            { value: "thursday", label: "Thursday" },
+            { value: "friday", label: "Friday" },
+            { value: "saturday", label: "Saturday" },
+            { value: "sunday", label: "Sunday" }
+          ];
+
+
+
         containerEl.empty();
 
         // Basic Settings
@@ -109,8 +121,28 @@ export class CustomDailyNotesSettingTab extends PluginSettingTab {
                         section.templatePath = value.trim() || undefined;
                         await this.plugin.saveSettings();
                     }));                    
-                    
             
-        });
+            // add for adding multi select for weekdays
+            sectionDiv.createEl("h3", { text: "Enabled Days" });
+
+            
+            days.forEach((day) => {
+                new Setting(sectionDiv)
+                  .setName(day.label)
+                  .addToggle((toggle) => {
+                    toggle
+                      .setValue(section.weekdays.length == 0 || section.weekdays.includes(day.value))
+                      .onChange(async (enabled) => {
+                        if (enabled) {
+                            section.weekdays.push(day.value);
+                        } else {
+                            section.weekdays = 
+                            section.weekdays.filter((d: string) => d !== day.value);
+                        }
+                        await this.plugin.saveSettings();
+                        });
+                    });
+                });
+            })
     }
 }
