@@ -1,6 +1,8 @@
 import { Plugin, App, Notice, TFile, TFolder, MarkdownView, PluginManifest, TAbstractFile } from 'obsidian';
 import { CustomDailyNotesSettings, DEFAULT_SETTINGS } from './interfaces';
 import { CustomDailyNotesSettingTab } from './settings';
+import { parseDateFromFilename } from './util'
+import moment from 'moment';
 
 const isMobile = () => {
     return document.body.classList.contains('is-mobile');
@@ -362,4 +364,54 @@ export default class CustomDailyNotesPlugin extends Plugin {
             console.error('Error toggling core Daily Notes plugin:', error);
         }
     }
+
+    // functions for archiving
+    async archiveNotesByTimeRange(): Promise<void> {
+        const { vault, fileManager } = this.app;
+        const { archiveFolder, archiveTimeRange } = this.settings;
+        
+        const archiveFolderPath = `${this.settings.dailyNotesFolder}/${archiveFolder}_${moment().format('DD-MM-YYYY')}`;        
+
+        // Ensure archive folder exists
+        await vault.createFolder(archiveFolderPath).catch(() => {});
+      
+        // Get cutoff date based on selected range
+        const cutoffDate = this.getCutoffDate(archiveTimeRange);
+        
+        // Get all markdown files
+        const files = vault.getMarkdownFiles();
+        let archivedCount = 0;
+      
+        for (const file of files) {
+          const fileDate = parseDateFromFilename(file.basename);
+          if (!fileDate || fileDate.isSameOrAfter(cutoffDate)) continue;
+      
+          const newPath = `${archiveFolderPath}/${file.name}`;
+          
+          try {
+            await fileManager.renameFile(file, newPath);
+            archivedCount++;
+          } catch (error) {
+            console.error(`Failed to archive ${file.path}:`, error);
+          }
+        }
+      
+        new Notice(`Archived ${archivedCount} notes to ${archiveFolderPath}`);
+      }
+      
+      private getCutoffDate(range: string): moment.Moment {
+        const now = moment();
+        switch (range) {
+          case "yesterday":
+            return now.subtract(1, 'day').startOf('day');
+          case "lastWeek":
+            return now.subtract(1, 'week').endOf('week');
+          case "lastMonth":
+            return now.subtract(1, 'month').endOf('month');
+          default:
+            return now; // Fallback (shouldn't happen)
+        }
+      }
+
+
 }

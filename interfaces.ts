@@ -26,6 +26,8 @@ export interface CustomDailyNotesSettings {
     inheritTasks: boolean;
     taskInheritanceTag: string;
     disableCoreDailyNotes: boolean; // Add this new setting
+    archiveFolder: string;
+    archiveTimeRange: "yesterday" | "lastWeek" | "lastMonth"; 
 }
 
 export const DEFAULT_SETTINGS: CustomDailyNotesSettings = {
@@ -38,6 +40,8 @@ export const DEFAULT_SETTINGS: CustomDailyNotesSettings = {
     inheritTasks: true,
     taskInheritanceTag: '@incomplete',
     disableCoreDailyNotes: true, // Default value for the new setting
+    archiveFolder: 'Journal_Archive',
+    archiveTimeRange: 'lastMonth', // Default value for the new setting
     sections: [
         {
             id: 'tasks',

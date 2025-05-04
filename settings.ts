@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, Modal, Notice, PluginSettingTab, Setting } from 'obsidian';
 import { CustomDailyNotesSettings, DailyNoteSection, DEFAULT_SETTINGS } from './interfaces';
 
 export class CustomDailyNotesSettingTab extends PluginSettingTab {
@@ -74,7 +74,8 @@ export class CustomDailyNotesSettingTab extends PluginSettingTab {
                     this.plugin.settings.mobileOptions.enableSwipeNavigation = value;
                     await this.plugin.saveSettings();
                 }));
-
+                
+              
         // Sections Configuration
         containerEl.createEl('h2', { text: 'Note Sections' });
         
@@ -144,5 +145,83 @@ export class CustomDailyNotesSettingTab extends PluginSettingTab {
                     });
                 });
             })
+
+         // settings for archiving
+        containerEl.createEl('h2', { text: 'Archiving Settings' });
+        // Archive Folder Path Setting
+        new Setting(containerEl)
+        .setName("Archive folder location")
+        .addText((text) =>
+          text
+            .setValue(this.plugin.settings.archiveFolder)
+            .onChange(async (value) => {
+              this.plugin.settings.archiveFolder = value;
+              await this.plugin.saveSettings();
+            })
+        );
+        // Time Range Selector
+        new Setting(containerEl)
+        .setName("Archive range")
+        .setDesc("Select which time period to archive")
+        .addDropdown((dropdown) => {
+          dropdown
+            .addOption("yesterday", "Older than yesterday")
+            .addOption("lastWeek", "Previous week and older")
+            .addOption("lastMonth", "Previous month and older")
+            .setValue(this.plugin.settings.archiveTimeRange)
+            .onChange(async (value) => {
+              this.plugin.settings.archiveTimeRange = value as any;
+              await this.plugin.saveSettings();
+            });
+        });
+
+            // Archive Button
+        new Setting(containerEl)
+        .setName("Archive notes")
+        .addButton((button) =>
+          button
+            .setButtonText("Archive Now")
+            .setWarning()
+            .onClick(async () => {
+              const confirmed = await confirmArchive(this.app);
+              if (confirmed) {
+                await this.plugin.archiveNotesByTimeRange();
+              }
+            })
+        );
+
     }
 }
+
+
+async function confirmArchive(app: App): Promise<boolean> {
+    return new Promise((resolve) => {
+      // Create a simple modal instead of using community lib
+      const modal = new class extends Modal {
+        onOpen() {
+          const { contentEl } = this;
+          contentEl.createEl('h2', { text: 'Confirm Archive' });
+          contentEl.createEl('p', { 
+            text: 'This will move matching notes to the archive folder. Continue?' 
+          });
+          
+          new Setting(contentEl)
+            .addButton(btn => btn
+              .setButtonText('Cancel')
+              .onClick(() => {
+                this.close();
+                resolve(false);
+              }))
+            .addButton(btn => btn
+              .setWarning()
+              .setButtonText('Archive')
+              .onClick(() => {
+                this.close();
+                resolve(true);
+              }));
+        }
+      }(app);
+      
+      modal.open();
+    });
+  }
