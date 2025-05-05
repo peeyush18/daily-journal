@@ -1,5 +1,7 @@
 # Obsidian Custom Daily Notes
 
+**Currently in Beta**
+
 Enhanced daily notes plugin with customizable sections and template support for Obsidian.
 
 ![Plugin Screenshot](screenshot.png) *(optional: add screenshot later)*
@@ -50,7 +52,7 @@ Enhanced daily notes plugin with customizable sections and template support for 
 ## Usage
 
 ### Basic Setup
-1. Open plugin settings (`Settings → Community Plugins → Custom Daily Notes`)
+1. Open plugin settings (`Settings → Community Plugins → Daily Journal`)
 2. Configure your preferred:
    - Daily notes folder location
    - File name format
