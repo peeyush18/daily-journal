@@ -4,6 +4,25 @@ Enhanced daily notes plugin with customizable sections and template support for 
 
 ![Plugin Screenshot](screenshot.png) *(optional: add screenshot later)*
 
+
+Mobile screenshots:
+
+![5818652849322706099](https://github.com/user-attachments/assets/41475869-7125-43bc-ae1e-969c72847dd8)
+
+![5818652849322706100](https://github.com/user-attachments/assets/33f1dee2-9186-439e-ae8a-db06d2f3d566)
+
+![5818652849322706101](https://github.com/user-attachments/assets/c6d472f7-dc0b-40cc-a517-c667fadc3184)
+
+My Plugin usage on mobile:
+
+
+![5818652849322706097](https://github.com/user-attachments/assets/0b17dca8-8c2d-4523-ad58-80a44b9bc849)
+
+![5818652849322706098](https://github.com/user-attachments/assets/caf12d30-9035-4d10-80e6-6207e43ed15c)
+
+
+
+
 ## Features
 
 - 📅 **Customizable sections** for your daily notes
