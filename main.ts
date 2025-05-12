@@ -187,10 +187,10 @@ export default class CustomDailyNotesPlugin extends Plugin {
             if (tasksSectionMatch) {
                 const tasksContent = tasksSectionMatch[1];
                 const taskLines = tasksContent.split('\n');
-                
+                const incompleteTaskPattern = '- [ ] ';
                 for (const line of taskLines) {
-                    if (line.includes('- [ ] ') &&
-                        line.trim().length > 3 && 
+                    if (line.includes(incompleteTaskPattern) &&
+                        line.trim().length > incompleteTaskPattern.length + 3 && 
                         !line.includes(this.settings.taskInheritanceTag)) {
                         tasks.push(line.trim());
                     }
