@@ -192,7 +192,7 @@ export default class CustomDailyNotesPlugin extends Plugin {
                     if (line.includes(incompleteTaskPattern) &&
                         line.trim().length > incompleteTaskPattern.length + 3 && 
                         !line.includes(this.settings.taskInheritanceTag)) {
-                        tasks.push(line.trim());
+                        tasks.push(line.replace(/\s+$/, ""));
                     }
                 }
             }
